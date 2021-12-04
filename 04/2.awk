@@ -1,4 +1,5 @@
 NR==1 {number_count=split($1, numbers, ","); current_number=numbers[1]; next}
+NR==2 {last_winner_number=$1; last_winner_sum=$2; winner_board_count=split($3, winner_board_list, ","); next}
   ((NR-3) % 6)==0 {
     board_count++
     board_sum_unmarked = 0
@@ -25,17 +26,24 @@ NR==1 {number_count=split($1, numbers, ","); current_number=numbers[1]; next}
         getline
     }
     if (winner == 1) {
-        print board_sum_unmarked*current_number
-        exit
+        known_winner = 0
+        for (i in winner_board_list) { if (winner_board_list[i] == board_count) {known_winner++}}
+        if (known_winner == 0) {
+            winner_board_count++
+            winner_board_list[winner_board_count] = board_count
+            last_winner_sum = board_sum_unmarked
+            last_winner_number = current_number
+        }
     }
     delete is
     delete js
 }
 
 END {
-    if (winner == 1) {exit} else {
+    if (number_count == 0) {print last_winner_sum*last_winner_number; exit} else {
         for (n=2; n<=number_count; n++) {(n==number_count) ? np=numbers[n] : np=numbers[n] ","; krab=krab np}
-        krab = krab "\n"
+        krab = krab "\n" last_winner_number " " last_winner_sum " "
+        for (w=1; w<=winner_board_count; w++) {(w==winner_board_count) ? wp=winner_board_list[w] : wp=winner_board_list[w] ","; krab=krab wp}
         for (board_index=1; board_index<=board_count; board_index++) {
             krab = krab "\n"
             for (j=1; j<=5; j++) {
@@ -45,6 +53,6 @@ END {
                 krab = krab "\n"
             }
         }
-        print krab | "awk -f 1.awk"
+        print krab | "awk -f 2.awk"
     }    
 }
