@@ -23,10 +23,6 @@ BEGIN {
         }
         fish_count+=new_fish_round
         new_fish_round=0
-        printf "After %03d day%s: ", days_after, (days_after>1)?"s":" "
-        for (i=1; i<=fish_count; i++) {
-            printf("%d%s"), school[i], (i<fish_count)?",":"\n"
-        }
     }
 }
 END {print fish_count}
