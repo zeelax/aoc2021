@@ -8,10 +8,10 @@ All of them?! The damage is worse than you thought. You bring up a copy of the n
 
 The navigation subsystem syntax is made of several lines containing chunks. There are one or more chunks on each line, and chunks contain zero or more other chunks. Adjacent chunks are not separated by any delimiter; if one chunk stops, the next chunk (if any) can immediately start. Every chunk must open and close with one of four legal pairs of matching characters:
 
-- If a chunk opens with (, it must close with ).
-- If a chunk opens with [, it must close with ].
-- If a chunk opens with {, it must close with }.
-- If a chunk opens with <, it must close with >.
+- If a chunk opens with `(`, it must close with `)`.
+- If a chunk opens with `[`, it must close with `]`.
+- If a chunk opens with `{`, it must close with `}`.
+- If a chunk opens with `<`, it must close with `>`.
 So, () is a legal chunk that contains no other chunks, as is `[]`. More complex but valid chunks include `([])`, `{()()()}`, `<([{}])>`, `[<>({}){}[([])<>]]`, and even `(((((((((())))))))))`.
 
 Some lines are incomplete, but others are corrupted. Find and discard the corrupted lines first.
@@ -48,6 +48,7 @@ Did you know that syntax checkers actually have contests to see who can get the 
 - `]`: 57 points.
 - `}`: 1197 points.
 - `>`: 25137 points.
+
 In the above example, an illegal `)` was found twice (`2*3 = 6` points), an illegal `]` was found once (57 points), an illegal `}` was found once (`1197` points), and an illegal > was found once (`25137` points). So, the total syntax error score for this file is `6+57+1197+25137 = 26397` points!
 
 Find the first illegal character in each corrupted line of the navigation subsystem. What is the total syntax error score for those errors?
@@ -72,7 +73,8 @@ Did you know that autocomplete tools also have contests? It's true! The score is
 - `]`: **2** points.
 - `}`: **3** points.
 - `>`: **4** points.
-So, the last completion string above - ])}> - would be scored as follows:
+
+So, the last completion string above - `])}>` - would be scored as follows:
 
 Start with a total score of **0**.
 Multiply the total score by **5** to get **0**, then add the value of `]` (2) to get a new total score of **2**.
@@ -86,6 +88,7 @@ The five lines' completion strings have total scores as follows:
 - `}}>}>))))` - **1480781** total points.
 - `]]}}]}]}>` - **995444** total points.
 - `])}>` - **294** total points.
+
 Autocomplete tools are an odd bunch: the winner is found by sorting all of the scores and then taking the middle score. (There will always be an odd number of scores to consider.) In this example, the middle score is **288957** because there are the same number of scores smaller and larger than it.
 
 Find the completion string for each incomplete line, score the completion strings, and sort the scores. What is the middle score?
