@@ -9,10 +9,6 @@ BEGIN {
     is_opening["["] = 1
     is_opening["{"] = 1
     is_opening["<"] = 1
-    is_opening[")"] = 0
-    is_opening["]"] = 0
-    is_opening["}"] = 0
-    is_opening[">"] = 0
 
     make_pair[")"] = "("
     make_pair["]"] = "["
