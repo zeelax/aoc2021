@@ -38,6 +38,13 @@ The top-left basin, size 3:
 8767896789
 9899965678
 ```
+```
+21........
+3.........
+..........
+..........
+..........
+```
 
 The top-right basin, size 9:
 ```
@@ -46,6 +53,13 @@ The top-right basin, size 9:
 9856789892
 8767896789
 9899965678
+```
+```
+.....43210
+......4.21
+.........2
+..........
+..........
 ```
 
 The middle basin, size 14:
@@ -56,6 +70,13 @@ The middle basin, size 14:
 8767896789
 9899965678
 ```
+```
+..........
+..878.....
+.85678....
+87678.....
+.8........
+```
 
 The bottom-right basin, size 9:
 ```
@@ -64,6 +85,13 @@ The bottom-right basin, size 9:
 9856789892
 8767896789
 9899965678
+```
+```
+..........
+..........
+.......8..
+......678.
+.....65678
 ```
 Find the three largest basins and multiply their sizes together. In the above example, this is 9 * 14 * 9 = 1134.
 
