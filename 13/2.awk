@@ -15,7 +15,7 @@ END {
         for (f=1; f<=fold[0]; f++) {
             split(fold[f], a, "=")
             b = (a[1]=="x")?1:2
-            if (c[b] > a[2]) c[b] = a[2] - (c[b] - a[2])
+            if (c[b] > a[2]) c[b] = a[2]*2 - c[b]
         }
         q[c[1],c[2]] = "#"
         if (max["x"] < c[1]) max["x"] = c[1]
