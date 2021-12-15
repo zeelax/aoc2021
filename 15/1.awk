@@ -20,17 +20,9 @@ BEGIN {
 }
 {for (i=1; i<=NF; i++) map[i,NR] = $i}
 END {
-    # for (j=1; j<=FNR; j++) {
-    #     for (i=1; i<=NF; i++) {
-    #         printf("%s", map[i,j])
-    #     }
-    #     printf "\n"
-    # }
     for (i in map) dist[i] = 2^PREC # sort of max_int
     dist[1,1] = 0
     for (i in map) {
-        q++;
-        #print q
         # pick the minimum distance vertex
         min = 2^PREC
         for (u in map) {
@@ -55,5 +47,4 @@ END {
             }
         }
     }
-    for (i in dist) print i, dist[i] 
 }
