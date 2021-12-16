@@ -38,7 +38,7 @@ END {
         # pick the minimum distance vertex
         min = 2^PREC
         for (u in queue) {
-            if (!spt[u] && map[u] && dist[u] < min) {
+            if (dist[u] < min) {
                 min = dist[u]
                 min_index = u
             }
