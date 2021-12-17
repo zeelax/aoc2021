@@ -47,7 +47,7 @@ function read_packet(message, pos,  i,r,j,version,k,value,v,l,subpacket_bit_coun
             subpacket_bit_count = bin2dec(substr(message, i, 15))
             i+=15
             k = i
-            while (i-k <= subpacket_bit_count-1) {
+            while (i-k < subpacket_bit_count) {
                 split(read_packet(message, i), r, " ")
                 i+=r[1]; version+=r[2]; v[++l] = r[3]
             }
