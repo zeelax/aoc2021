@@ -10,13 +10,34 @@ function transform(c, v,  r, a) {
     return r
 }
 
-function calculate_offset(c1, c2,  a, b, c, i, r) {
+function calculate_offset(c1, c2, p,  a, b, c, i, r) {
     split(c1, a, ",")
     split(c2, b, ",")
-    for (i=1; i<=3; i++) c[i] = a[i]-b[i]
+    for (i=1; i<=3; i++) c[i] = (p)? a[i] + b[i] : a[i] - b[i]
     r = c[1] "," c[2] "," c[3]
 
     return r
+}
+
+function check_overlap(s1, s2,  b1, b2, c, d1, d2, i, o, r) {
+    for(b1=1; b1<=scanners[s1,0]; b1++) {
+        for(b2=1; b2<=scanners[s2,0]; b2++) {
+            c = 0;
+            for(d1=1; d1<=scanners[s1,b1,"d",0]; d1++) {
+                for (d2=1; d2<=scanners[s2,b2,"d",0]; d2++) {
+                    if (scanners[s1,b1,"d",d1] == scanners[s2,b2,"d",d2]) {
+                        c++
+                    }
+                }
+            }
+            if (c>=12) {
+                o++
+                beacons[s1,s2,++i] = b1 " " b2
+            }
+        }
+    }
+
+    return o >= 12
 }
 
 
@@ -90,7 +111,7 @@ BEGIN{
     coords[17] = "x,-z,y"
     coords[18] = "z,x,y"
     coords[19] = "-x,z,y"
-    coords[20] = "-z,-x,-y"
+    coords[20] = "-z,-x,y"
 
     coords[17,1] = 1; coords[17,2] = 3; coords[17,3] = 2
     coords[18,1] = 3; coords[18,2] = 1; coords[18,3] = 2
@@ -100,7 +121,7 @@ BEGIN{
     sign[17,1] =  1; sign[17,2] = -1; sign[17,3] =  1
     sign[18,1] =  1; sign[18,2] =  1; sign[18,3] =  1
     sign[19,1] = -1; sign[19,2] =  1; sign[19,3] =  1
-    sign[20,1] = -1; sign[20,2] = -1; sign[20,3] = -1
+    sign[20,1] = -1; sign[20,2] = -1; sign[20,3] =  1
 
     coords[21] = "-x,-z,-y"
     coords[22] = "z,-x,-y"
@@ -122,7 +143,6 @@ BEGIN{
 !$1 {next}
 $1=="---" {
     s = $3
-    #b = 0
     scanner_count++
 }
 $1!="---" && $1 {
@@ -148,72 +168,76 @@ END {
         }
     }
 
-    # find scanners with overlaping detecting regions
     i = 0
+    queue[0] = 1
+    beacons[0] = 1
+
+
+    # we already know this for scanner 0
+    scanners[0,"l"] = "0,0,0"
+    scanners[0,"t"] = 1
+
+    while (length(queue)) {
+        for (s1 in queue) {
+            seen[s1] = 1
+            for (s2=0; s2<=scanner_count-1; s2++) {
+                if (s1==s2) continue
+                if (check_overlap(s1,s2) && !seen[s2]) {
+                    print s2 " as seen by " s1
+                    seen_by[s2] = s1
+                    queue[s2] = 1
+
+                    t = 0
+                    while (t<24 && c != 12) {
+                        t++
+                        c = 0
+                        for (b=1; b<=12; b++) {
+                            split(beacons[s1,s2,b], a, " ")
+                            l = calculate_offset(scanners[s1,a[1]], transform(scanners[s2,a[2]], t))
+                            e[l] = 1
+                        }
+                        if (length(e) == 1) {
+                            scanners[s2,"t"] = t
+                            s = s1
+                            while (scanners[seen_by[s],"t"]) {
+                                l = transform(l, scanners[s,"t"])
+                                s = seen_by[s]
+                            }
+                            scanners[s2,"l"] = calculate_offset(scanners[s1,"l"], l, 1)
+                        }
+                        delete e
+                    }
+                }
+            }
+            seen[s1] = 1
+            delete queue[s1]
+        }
+    }
+
+    for (s=0; s<scanner_count; s++) {
+        for (b=1; b<=scanners[s,0]; b++) {
+            p = s
+            l = scanners[s,b]
+            while (scanners[seen_by[p],"t"]) {
+                l = transform(l, scanners[p,"t"])
+                p = seen_by[p]
+            }
+            res[calculate_offset(scanners[s,"l"], l, 1)] = 1
+        }
+    }
+
     for (s1=0; s1<scanner_count-1; s1++) {
         for (s2=s1+1; s2<=scanner_count; s2++) {
-            for(b1=1; b1<=scanners[s1,0]; b1++) {
-                for(b2=1; b2<=scanners[s2,0]; b2++) {
-                    c = 0;
-                    for(d1=1; d1<=scanners[s1,b1,"d",0]; d1++) {
-                        for (d2=1; d2<=scanners[s2,b2,"d",0]; d2++) {
-                            if (scanners[s1,b1,"d",d1] == scanners[s2,b2,"d",d2]) {
-                                c++
-                                #print "krab", s1, s2, b1, b2
-                            }
-                            #print scanners[s1,b1,"d",d1], scanners[s2,b2,"d",d2]
-                        }
-                    }
-                    if (c>=12) {
-                        #print "ololo", s1, s2, b1, b2
-                        scanner_overlap = 1
-                        beacons[s1,s2,++i] = b1 " " b2
-                    }
-                    # print c
-                }
+            split(scanners[s1,"l"], c1, ",")
+            split(scanners[s2,"l"], c2, ",")
+            d = 0
+            for (i in c1) {
+                d += abs(c1[i] - c2[i])
             }
-            #print "krabiwe"
-            if (scanner_overlap) {
-                overlaps[s1,++overlaps[s1,0]] = s2
-                scanner_overlap = 0
-                i = 0
-            }
-        }
-        #print "krabiwe"
-    }
-
-    for (s1=0; s1<scanner_count; s1++) {
-        if (overlaps[s1,0]) {
-            #print overlaps[s1,0]
-            for (s=1; s<=overlaps[s1,0]; s++) {
-                print s1 " overlaps with " overlaps[s1,s]
-                t = 0
-                while (t<24 && c != 12) {
-                    t++
-                    c = 0
-                    #print t
-                    for (b=1; b<=12; b++) {
-                        #print beacons[s1,overlaps[s1,s],b]
-                        split(beacons[s1,overlaps[s1,s],b], a, " ")
-                        #print calculate_offset(scanners[s1,a[1]], transform(scanners[overlaps[s1,s],a[2]], t))
-                        e[calculate_offset(scanners[s1,a[1]], transform(scanners[overlaps[s1,s],a[2]], t))]++
-                    }
-                    if (length(e) == 1) scanners[overlaps[s1,s],"t"] = t
-                    delete e
-                }
-                #print s1, overlaps[s1,s], t 
-            }
+            if (d>max) max = d
         }
     }
 
-    # for (i in overlaps) {
-    #     print i, overlaps[i]
-    # }
-
-    #print beacons[0,1,5]
-
-    #print transform("1,2,3", 1)
-
-    print transform("68,-1246,-43", 7)
-    print calculate_offset("160,-1134,-23",transform("68,-1246,-43",7))
+    print length(res)
+    print max
 }
